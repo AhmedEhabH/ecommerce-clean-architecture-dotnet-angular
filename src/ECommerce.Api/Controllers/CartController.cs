@@ -5,6 +5,7 @@ using ECommerce.Application.Cart.Interfaces;
 using ECommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ECommerce.Api.Controllers;
 
@@ -12,6 +13,7 @@ namespace ECommerce.Api.Controllers;
 /// Shopping cart management endpoints
 /// </summary>
 [Authorize]
+[EnableRateLimiting("cart")]
 public class CartController : BaseApiController
 {
     private readonly ICartService _cartService;

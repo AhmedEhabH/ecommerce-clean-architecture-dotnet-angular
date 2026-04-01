@@ -3,6 +3,7 @@ using ECommerce.Application.Categories.DTOs;
 using ECommerce.Application.Categories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ECommerce.Api.Controllers;
 
@@ -10,6 +11,7 @@ namespace ECommerce.Api.Controllers;
 /// Category management endpoints for browsing and managing product categories
 /// </summary>
 [Authorize]
+[EnableRateLimiting("categories")]
 public class CategoriesController : BaseApiController
 {
     private readonly ICategoryService _categoryService;

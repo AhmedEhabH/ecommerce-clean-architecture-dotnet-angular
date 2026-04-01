@@ -5,6 +5,7 @@ using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ECommerce.Api.Controllers;
 
@@ -12,6 +13,7 @@ namespace ECommerce.Api.Controllers;
 /// Product management endpoints for browsing and managing products
 /// </summary>
 [Authorize]
+[EnableRateLimiting("products")]
 public class ProductsController : BaseApiController
 {
     private readonly IProductService _productService;

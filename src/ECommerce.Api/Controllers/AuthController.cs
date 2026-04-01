@@ -3,12 +3,14 @@ using ECommerce.Api.Models;
 using ECommerce.Application.Auth.DTOs;
 using ECommerce.Application.Auth.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ECommerce.Api.Controllers;
 
 /// <summary>
 /// Authentication endpoints for user login, registration, and token management
 /// </summary>
+[EnableRateLimiting("auth")]
 public class AuthController : BaseApiController
 {
     private readonly IAuthService _authService;
