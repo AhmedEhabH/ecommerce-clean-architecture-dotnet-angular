@@ -36,7 +36,7 @@ public class User : BaseEntity
 
     private User() { }
 
-    public static User Create(string email, string passwordHash, string firstName, string lastName, string? phoneNumber = null, Role role = Role.Customer)
+    public static User Create(string email, string passwordHash, string firstName, string lastName, string? phoneNumber = null, Role role = Role.User)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email is required", nameof(email));

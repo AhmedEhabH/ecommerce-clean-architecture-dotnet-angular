@@ -2,7 +2,6 @@ namespace ECommerce.Domain.Enums;
 
 public enum Role
 {
-    Customer = 1,
-    Seller = 2,
-    Admin = 3
+    User = 1,
+    Admin = 2
 }
