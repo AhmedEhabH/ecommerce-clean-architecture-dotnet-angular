@@ -203,8 +203,26 @@ app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.Health
 
 using (var scope = app.Services.CreateScope())
 {
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await DatabaseSeeder.SeedAsync(context);
+
+    try
+    {
+        await context.Database.CanConnectAsync();
+        await DatabaseSeeder.SeedAsync(context);
+        logger.LogInformation("Database seeded successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database seeding failed: {Message}", ex.Message);
+
+        if (!app.Environment.IsDevelopment())
+        {
+            throw;
+        }
+
+        logger.LogWarning("Running without seeded data. The API will start but database-dependent endpoints may fail.");
+    }
 }
 
 app.Run();
