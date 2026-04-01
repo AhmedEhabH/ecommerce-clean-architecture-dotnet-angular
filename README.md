@@ -1,58 +1,130 @@
 # ECommerce API
 
-A production-ready ASP.NET Core 8 REST API for e-commerce management, built with Clean Architecture.
+A production-ready ASP.NET Core 8 REST API for e-commerce management, built with Clean Architecture and CQRS patterns.
+
+## Features
+
+- [x] **Authentication & Authorization** — JWT Bearer tokens with refresh tokens, role-based access (Admin/User)
+- [x] **Product Management** — Full CRUD with admin controls
+- [x] **Category Management** — Hierarchical product categorization
+- [x] **Shopping Cart** — Add, update, remove items per user
+- [x] **Order Management** — Create orders from cart, track order history
+- [x] **Payment Processing** — Initiate, process, and refund payments
+- [x] **Checkout Flow** — End-to-end checkout with payment integration
+- [x] **API Documentation** — Swagger/OpenAPI interactive UI
+- [x] **Health Checks** — Application and database readiness endpoints
+- [x] **Structured Logging** — Serilog integration
+- [x] **Database Seeding** — Auto-seeds admin account and sample data
+- [x] **CI/CD** — GitHub Actions for build and test automation
+- [x] **Docker Support** — Multi-stage Dockerfile and docker-compose setup
+- [x] **Testing** — Unit and integration tests across all layers
 
 ## Architecture
 
-The solution follows Clean Architecture with four layers:
+Built with Clean Architecture principles, the solution is organized into four independent layers:
 
-| Layer | Project | Responsibility |
-|---|---|---|
-| **Domain** | `ECommerce.Domain` | Entities, enums, and domain logic |
-| **Application** | `ECommerce.Application` | Services, interfaces, DTOs, validators |
-| **Infrastructure** | `ECommerce.Infrastructure` | EF Core DbContext, repositories, external services |
-| **API** | `ECommerce.Api` | Controllers, middleware, Swagger, composition root |
+```
+┌─────────────────────────────────────────────────┐
+│                   API Layer                     │
+│  Controllers, Middleware, Swagger, Composition  │
+├─────────────────────────────────────────────────┤
+│               Application Layer                 │
+│  Services, Interfaces, DTOs, Validators, CQRS   │
+├─────────────────────────────────────────────────┤
+│              Infrastructure Layer               │
+│  EF Core DbContext, Repositories, External Svc  │
+├─────────────────────────────────────────────────┤
+│                 Domain Layer                    │
+│  Entities, Enums, Domain Logic (no dependencies)│
+└─────────────────────────────────────────────────┘
+```
 
-Key patterns and libraries:
-- **CQRS-style** services with result pattern for error handling
-- **FluentValidation** for request validation
-- **BCrypt** for password hashing
-- **JWT Bearer** authentication with refresh tokens
-- **Serilog** for structured logging
-- **Swagger/OpenAPI** for API documentation
+**Key Technologies:**
+- **Framework:** ASP.NET Core 8
+- **Database:** SQL Server with Entity Framework Core
+- **Validation:** FluentValidation
+- **Security:** BCrypt password hashing, JWT authentication
+- **Logging:** Serilog
+- **Testing:** xUnit
 
-## Prerequisites
+## Getting Started
+
+### Prerequisites
 
 - .NET 8 SDK
 - SQL Server (local or Docker)
 
-## Running Locally
+### Option 1: Local Development
 
-### 1. Configure the database
+1. **Configure the database** — Update `src/ECommerce.Api/appsettings.json`:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost;Database=ECommerceDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+     }
+   }
+   ```
 
-Update `src/ECommerce.Api/appsettings.json` with your SQL Server connection string:
+2. **Apply migrations:**
+   ```bash
+   dotnet ef database update --project src/ECommerce.Infrastructure --startup-project src/ECommerce.Api
+   ```
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=ECommerceDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
-  }
-}
-```
+3. **Run the API:**
+   ```bash
+   dotnet run --project src/ECommerce.Api
+   ```
 
-### 2. Apply migrations
+   The API starts at `http://localhost:5000`. On first run, the database is seeded with an admin account and sample data.
 
+### Option 2: Docker (Recommended)
+
+**Run with Docker Compose (starts API + SQL Server):**
 ```bash
-dotnet ef database update --project src/ECommerce.Infrastructure --startup-project src/ECommerce.Api
+docker compose up --build
 ```
 
-### 3. Run the API
+This starts:
+- **API** on `http://localhost:8080`
+- **SQL Server** on `localhost:1433`
 
+The database is persisted via a named volume. The API waits for the database to be healthy before starting.
+
+**Build and run the image only:**
 ```bash
-dotnet run --project src/ECommerce.Api
+docker build -t ecommerce-api .
+docker run -p 8080:8080 ecommerce-api
 ```
 
-The API starts at `http://localhost:5000` (or the configured port). On first run, the database is seeded with an admin account and sample data.
+### Option 3: API Documentation & Testing
+
+#### Swagger UI
+- Available at `http://localhost:5000` (local) or `http://localhost:8080` (Docker) in Development mode
+- Use the **Authorize** button to enter JWT tokens (`Bearer <token>`)
+- Interactive endpoint documentation with request/response schemas
+
+#### Postman
+1. Import `ECommerce.postman_collection.json` into Postman
+2. Set the `baseUrl` variable to your API URL (default: `http://localhost:8080`)
+3. Login via `/api/auth/login` to get an access token
+4. Set the `accessToken` variable with your token for authenticated requests
+
+#### cURL Examples
+```bash
+# Login
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@ecommerce.com","password":"Admin@123"}'
+
+# Get products (public)
+curl -X GET http://localhost:8080/api/products
+
+# Create order (requires auth)
+curl -X POST http://localhost:8080/api/orders \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"productId":"<guid>","quantity":2}],"shippingAddress":"123 Main St"}'
+```
 
 ## API Endpoints
 
@@ -97,14 +169,10 @@ The API starts at `http://localhost:5000` (or the configured port). On first run
 | `/api/orders` | GET | Get user's orders |
 | `/api/orders/{id}` | GET | Get order details |
 
-### Checkout
+### Checkout & Payments
 | Endpoint | Method | Description |
 |---|---|---|
 | `/api/checkout` | POST | Process checkout from cart |
-
-### Payments
-| Endpoint | Method | Description |
-|---|---|---|
 | `/api/payments` | POST | Initiate a payment |
 | `/api/payments/{id}` | GET | Get payment details |
 | `/api/payments/order/{orderId}` | GET | Get payment by order |
@@ -114,79 +182,14 @@ The API starts at `http://localhost:5000` (or the configured port). On first run
 ### Authorization
 
 All protected endpoints require a JWT token in the `Authorization` header:
-
 ```
 Authorization: Bearer <your-token>
 ```
 
 | Role | Permissions |
 |---|---|
-| **Admin** | Full access — create, update, delete products, categories, and manage payments |
-| **User** | Read products, create orders, manage own payments |
-
-### Usage Examples
-
-```bash
-# Create an order
-curl -X POST http://localhost:5000/api/orders \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"items":[{"productId":"<guid>","quantity":2}],"shippingAddress":"123 Main St"}'
-
-# Get user's orders
-curl -X GET http://localhost:5000/api/orders \
-  -H "Authorization: Bearer <token>"
-
-# Process checkout
-curl -X POST http://localhost:5000/api/checkout \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"items":[{"productId":"<guid>","quantity":1}],"shippingAddress":"123 Main St","paymentMethod":"CreditCard"}'
-
-# Initiate payment
-curl -X POST http://localhost:5000/api/payments \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"orderId":"<guid>","amount":99.99,"method":"CreditCard"}'
-
-# Process payment
-curl -X POST http://localhost:5000/api/payments/<payment-id>/process \
-  -H "Authorization: Bearer <token>"
-
-# Refund payment
-curl -X POST http://localhost:5000/api/payments/<payment-id>/refund \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"reason":"Customer request"}'
-```
-
-## Swagger
-
-Swagger UI is available at the root URL when running in Development mode. It includes:
-- Interactive endpoint documentation with descriptions and examples
-- JWT authentication via the "Authorize" button (enter `Bearer <token>`)
-- Request/response schemas and sample values
-
-## Docker
-
-### Build and run with Docker Compose
-
-```bash
-docker compose up --build
-```
-
-This starts:
-- **API** on `http://localhost:8080`
-- **SQL Server** on `localhost:1433`
-
-The database is persisted via a named volume. The API waits for the database to be healthy before starting.
-
-### Build the image only
-
-```bash
-docker build -t ecommerce-api .
-docker run -p 8080:8080 ecommerce-api
-```
+| **Admin** | Full access — manage products, categories, and payments |
+| **User** | Browse products, create orders, manage own payments |
 
 ## Health Checks
 
@@ -201,6 +204,17 @@ docker run -p 8080:8080 ecommerce-api
 dotnet test
 ```
 
-## CI
+## CI/CD
 
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`/`master`. It restores dependencies, builds the solution, and runs all tests.
+
+## Roadmap
+
+- [ ] Redis caching for products and categories
+- [ ] Email notifications for order confirmations
+- [ ] File upload for product images
+- [ ] Pagination and filtering for list endpoints
+- [ ] Rate limiting and API throttling
+- [ ] Integration with external payment gateways (Stripe, PayPal)
+- [ ] GraphQL API alternative
+- [ ] Kubernetes deployment manifests
