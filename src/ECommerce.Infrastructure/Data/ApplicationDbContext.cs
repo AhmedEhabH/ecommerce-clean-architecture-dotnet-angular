@@ -59,17 +59,17 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(e => e.Carts)
-                .WithOne()
+                .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(e => e.Wishlists)
-                .WithOne()
+                .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(e => e.Orders)
-                .WithOne()
+                .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -261,7 +261,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Payment)
-                .WithOne()
+                .WithOne(e => e.Order)
                 .HasForeignKey<Payment>(e => e.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
