@@ -314,11 +314,11 @@ The frontend calls the REST API through a typed `ApiService` wrapper. Authentica
 
 Product images are resolved through a reusable `ProductImagePipe`:
 
-- **Absolute URLs** (`http://`, `https://`) — used as-is (e.g. `https://via.placeholder.com/...`)
+- **Absolute URLs** (`http://`, `https://`) — used as-is, except for known unreliable services like `via.placeholder.com`
 - **Backend-relative paths** (e.g. `/uploads/products/img.jpg`) — prefixed with the API base host (e.g. `http://localhost:5000/uploads/products/img.jpg`)
-- **Missing or null images** — fall back to an inline SVG placeholder
+- **Missing, null, or unreliable URLs** — fall back to a local SVG placeholder (`/images/placeholder.svg`)
 
-This ensures images display correctly regardless of whether the backend stores absolute external URLs or relative paths.
+This ensures images display correctly regardless of whether the backend stores absolute external URLs or relative paths. The placeholder is served from the Angular app's public assets folder.
 
 ### Project Structure
 
@@ -348,7 +348,14 @@ frontend/src/app/
 
 ### Screenshots
 
-> Add screenshots by placing images in `docs/screenshots/` and updating the paths below.
+> **Note:** The following screenshot files must be added to `docs/screenshots/` to display properly on GitHub:
+> - `home.png` — Home page screenshot
+> - `login.png` — Login page screenshot
+> - `register.png` — Register page screenshot
+> - `products-list.png` — Products listing page screenshot
+> - `product-details.png` — Product details page screenshot
+> - `cart.png` — Shopping cart page screenshot
+> - `checkout.png` — Checkout page screenshot
 
 #### Home
 ![Home](docs/screenshots/home.png)
