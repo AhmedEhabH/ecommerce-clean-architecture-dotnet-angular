@@ -1,12 +1,6 @@
 <a [routerLink]="['/products', product.id]" class="product-card">
   <div class="product-card__image-wrapper">
-    @if (product.mainImageUrl) {
-      <img [src]="product.mainImageUrl" [alt]="product.name" class="product-card__image" />
-    } @else {
-      <div class="product-card__placeholder">
-        <span>{{ product.name.charAt(0) }}</span>
-      </div>
-    }
+    <img [src]="product.mainImageUrl | productImage" [alt]="product.name" class="product-card__image" />
     @if (product.hasDiscount) {
       <span class="product-card__badge product-card__badge--sale">-{{ product.discountPercentage | number:'1.0-0' }}%</span>
     }

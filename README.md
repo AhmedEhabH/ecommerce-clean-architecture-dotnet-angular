@@ -218,3 +218,149 @@ A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pu
 - [ ] Integration with external payment gateways (Stripe, PayPal)
 - [ ] GraphQL API alternative
 - [ ] Kubernetes deployment manifests
+
+---
+
+## Frontend (Angular)
+
+A standalone Angular SPA that consumes the ECommerce API. Built with Angular 21, standalone components, and typed HTTP clients.
+
+### Features Implemented
+
+- [x] **App Shell** — Header with navigation, footer, responsive layout
+- [x] **Authentication** — Login, Register, JWT interceptor, route guards
+- [x] **Products Catalog** — Paginated product listing, product details page, reusable card/grid components
+
+### How to Run the Frontend
+
+**Prerequisites:**
+- Node.js 18+
+- The backend API must be running (see Getting Started above)
+
+**Install dependencies:**
+```bash
+cd frontend
+npm install
+```
+
+**Development server:**
+```bash
+npm start
+# or
+ng serve
+```
+The app starts at `http://localhost:4200`.
+
+**Production build:**
+```bash
+npm run build
+# or
+ng build --configuration production
+```
+Output is written to `frontend/dist/frontend`.
+
+### API Configuration
+
+The frontend reads the backend URL from environment files:
+
+| File | `apiBaseUrl` |
+|---|---|
+| `src/environments/environment.ts` | `http://localhost:5000/api` |
+| `src/environments/environment.prod.ts` | `/api` |
+
+Update `environment.ts` if your API runs on a different host or port.
+
+### How the Frontend Uses the Backend
+
+The frontend calls the REST API through a typed `ApiService` wrapper. Authenticated requests include a JWT Bearer token via the `AuthInterceptor`.
+
+**Example product list response shape:**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "guid",
+        "name": "Gaming Laptop",
+        "slug": "gaming-laptop",
+        "description": "High-performance laptop...",
+        "price": 1299.99,
+        "compareAtPrice": 1499.99,
+        "mainImageUrl": "https://via.placeholder.com/400x400?text=Laptop",
+        "images": [{ "id": "guid", "imageUrl": "...", "altText": null, "displayOrder": 1 }],
+        "isInStock": true,
+        "hasDiscount": true,
+        "discountPercentage": 13,
+        "averageRating": 4.5,
+        "reviewCount": 42,
+        "sku": "LAPTOP-001",
+        "stockQuantity": 15,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    ],
+    "totalCount": 150,
+    "page": 1,
+    "pageSize": 12,
+    "totalPages": 13,
+    "hasPreviousPage": false,
+    "hasNextPage": true
+  }
+}
+```
+
+### Product Image Handling
+
+Product images are resolved through a reusable `ProductImagePipe`:
+
+- **Absolute URLs** (`http://`, `https://`) — used as-is (e.g. `https://via.placeholder.com/...`)
+- **Backend-relative paths** (e.g. `/uploads/products/img.jpg`) — prefixed with the API base host (e.g. `http://localhost:5000/uploads/products/img.jpg`)
+- **Missing or null images** — fall back to an inline SVG placeholder
+
+This ensures images display correctly regardless of whether the backend stores absolute external URLs or relative paths.
+
+### Project Structure
+
+```
+frontend/src/app/
+├── core/                      # Singleton services, guards, interceptors, models
+│   ├── guards/                # Route guards (authGuard)
+│   ├── interceptors/          # HTTP interceptors (authInterceptor)
+│   ├── models/                # Shared type definitions
+│   └── services/              # Core services (ApiService, AuthService)
+├── features/                  # Feature modules (lazy-load ready)
+│   ├── auth/                  # Login & Register pages
+│   ├── products/              # Products catalog
+│   │   ├── components/        # Reusable UI (product-card, product-grid)
+│   │   ├── models/            # Product & pagination types
+│   │   ├── pages/             # Route-level pages (list, details)
+│   │   └── services/          # ProductsService
+│   ├── home/
+│   ├── cart/
+│   ├── checkout/
+│   └── not-found/
+├── layout/                    # Header, footer, shell components
+├── shared/                    # Shared pipes, directives, utilities
+│   └── pipes/                 # ProductImagePipe
+└── environments/              # Environment-specific config
+```
+
+### Screenshots
+
+> Add screenshots by placing images in `docs/screenshots/` and updating the paths below.
+
+#### Home
+![Home](docs/screenshots/home.png)
+
+#### Login
+![Login](docs/screenshots/login.png)
+
+#### Register
+![Register](docs/screenshots/register.png)
+
+#### Products List
+![Products List](docs/screenshots/products-list.png)
+
+#### Product Details
+![Product Details](docs/screenshots/product-details.png)

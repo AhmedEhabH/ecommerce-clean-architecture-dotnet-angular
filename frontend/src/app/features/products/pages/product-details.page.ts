@@ -3,11 +3,12 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductsService } from '../services/products.service';
 import { Product } from '../models/product.model';
+import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
 
 @Component({
   selector: 'app-product-details-page',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, RouterLink],
+  imports: [CommonModule, CurrencyPipe, RouterLink, ProductImagePipe],
   templateUrl: './product-details.page.html',
   styleUrl: './product-details.page.scss'
 })
