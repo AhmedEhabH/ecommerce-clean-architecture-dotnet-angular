@@ -1,0 +1,37 @@
+<a [routerLink]="['/products', product.id]" class="product-card">
+  <div class="product-card__image-wrapper">
+    @if (product.mainImageUrl) {
+      <img [src]="product.mainImageUrl" [alt]="product.name" class="product-card__image" />
+    } @else {
+      <div class="product-card__placeholder">
+        <span>{{ product.name.charAt(0) }}</span>
+      </div>
+    }
+    @if (product.hasDiscount) {
+      <span class="product-card__badge product-card__badge--sale">-{{ product.discountPercentage | number:'1.0-0' }}%</span>
+    }
+    @if (!product.isInStock) {
+      <span class="product-card__badge product-card__badge--out">Out of stock</span>
+    }
+  </div>
+
+  <div class="product-card__content">
+    <h3 class="product-card__name">{{ product.name }}</h3>
+
+    @if (product.averageRating > 0) {
+      <div class="product-card__rating">
+        <span class="product-card__stars">{{ product.averageRating | number:'1.1-1' }}</span>
+        <span class="product-card__count">({{ product.reviewCount }})</span>
+      </div>
+    }
+
+    <div class="product-card__price">
+      @if (product.hasDiscount && product.compareAtPrice) {
+        <span class="product-card__price-current">{{ product.price | currency }}</span>
+        <span class="product-card__price-original">{{ product.compareAtPrice | currency }}</span>
+      } @else {
+        <span class="product-card__price-current">{{ product.price | currency }}</span>
+      }
+    </div>
+  </div>
+</a>

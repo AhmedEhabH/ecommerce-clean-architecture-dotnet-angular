@@ -1,0 +1,72 @@
+<div class="page">
+  <div class="container">
+    <a routerLink="/products" class="back-link">&larr; Back to products</a>
+
+    @if (loading()) {
+      <div class="loading">
+        <div class="loading__spinner"></div>
+        <p>Loading product...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error">
+        <p>{{ error() }}</p>
+        <a routerLink="/products" class="btn">Back to products</a>
+      </div>
+    } @else if (product(); as p) {
+      <div class="product-details">
+        <div class="product-details__image">
+          @if (p.mainImageUrl) {
+            <img [src]="p.mainImageUrl" [alt]="p.name" />
+          } @else {
+            <div class="product-details__placeholder">
+              <span>{{ p.name.charAt(0) }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="product-details__info">
+          <h1 class="product-details__name">{{ p.name }}</h1>
+
+          @if (p.averageRating > 0) {
+            <div class="product-details__rating">
+              <span class="product-details__stars">{{ p.averageRating | number:'1.1-1' }}</span>
+              <span class="product-details__count">({{ p.reviewCount }} reviews)</span>
+            </div>
+          }
+
+          <div class="product-details__price">
+            @if (p.hasDiscount && p.compareAtPrice) {
+              <span class="product-details__price-current">{{ p.price | currency }}</span>
+              <span class="product-details__price-original">{{ p.compareAtPrice | currency }}</span>
+              <span class="product-details__discount">-{{ p.discountPercentage | number:'1.0-0' }}%</span>
+            } @else {
+              <span class="product-details__price-current">{{ p.price | currency }}</span>
+            }
+          </div>
+
+          <p class="product-details__stock" [class.out]="!p.isInStock">
+            {{ p.isInStock ? 'In Stock' : 'Out of Stock' }}
+          </p>
+
+          @if (p.description) {
+            <div class="product-details__description">
+              <h2>Description</h2>
+              <p>{{ p.description }}</p>
+            </div>
+          }
+
+          <div class="product-details__meta">
+            <div class="product-details__meta-item">
+              <strong>SKU:</strong> {{ p.sku }}
+            </div>
+            @if (p.isInStock) {
+              <div class="product-details__meta-item">
+                <strong>Available:</strong> {{ p.stockQuantity }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

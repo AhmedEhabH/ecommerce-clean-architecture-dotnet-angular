@@ -1,0 +1,46 @@
+<div class="page">
+  <div class="container">
+    <h1 class="page__title">Products</h1>
+    <p class="page__subtitle">Browse our collection.</p>
+
+    @if (loading()) {
+      <div class="loading">
+        <div class="loading__spinner"></div>
+        <p>Loading products...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error">
+        <p>{{ error() }}</p>
+        <button class="btn" (click)="loadProducts()">Try again</button>
+      </div>
+    } @else {
+      <app-product-grid [products]="products()" />
+
+      @if (pagination(); as pag) {
+        @if (pag.totalPages > 1) {
+          <div class="pagination">
+            <button
+              class="btn btn--outline"
+              [disabled]="!pag.hasPreviousPage"
+              (click)="prevPage()"
+            >
+              Previous
+            </button>
+
+            <span class="pagination__info">
+              Page {{ pag.page }} of {{ pag.totalPages }}
+            </span>
+
+            <button
+              class="btn btn--outline"
+              [disabled]="!pag.hasNextPage"
+              (click)="nextPage()"
+            >
+              Next
+            </button>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
