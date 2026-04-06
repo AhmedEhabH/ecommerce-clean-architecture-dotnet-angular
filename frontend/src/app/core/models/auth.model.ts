@@ -1,0 +1,34 @@
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  email: string;
+  fullName: string;
+  role: string;
+}
+
+export interface AuthUser {
+  email: string;
+  fullName: string;
+  role: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  errors?: string[];
+}
