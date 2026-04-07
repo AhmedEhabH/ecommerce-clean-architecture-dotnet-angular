@@ -370,12 +370,8 @@ A generic fallback placeholder is available at `frontend/src/assets/images/produ
 
 ### Screenshots
 
-> **Note:** To add screenshots, run the frontend locally (`npm start`), navigate to each page, and save PNG screenshots into `docs/screenshots/`. Then update the image references below.
-
-| File | Description |
-|---|---|
-| `home.png` | Home page |
-| `login.png` | Login page |
-| `register.png` | Register page |
-| `products-list.png` | Products listing page |
-| `product-details.png` | Product details page |
+![Home](docs/screenshots/home.png)
+![Login](docs/screenshots/login.png)
+![Register](docs/screenshots/register.png)
+![Products List](docs/screenshots/products-list.png)
+![Product Details](docs/screenshots/product-details.png)
