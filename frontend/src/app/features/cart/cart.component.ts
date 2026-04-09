@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CurrencyPipe } from '@angular/common';
 import { ProductImagePipe } from '../../shared/pipes/product-image.pipe';
-import { CartService } from '../../core/services/cart.service';
-import { CartResponse, CartItem } from '../../core/models/cart.model';
+import { CartService, CartState } from '../../core/services/cart.service';
+import { CartItem } from '../../core/models/cart.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -13,9 +14,10 @@ import { CartResponse, CartItem } from '../../core/models/cart.model';
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
   private cdr = inject(ChangeDetectorRef);
+  private cartSub?: Subscription;
   
   cartItems: CartItem[] = [];
   loading = true;
@@ -28,27 +30,26 @@ export class CartComponent implements OnInit {
     this.loadCart();
   }
 
+  ngOnDestroy(): void {
+    this.cartSub?.unsubscribe();
+  }
+
   loadCart(): void {
     this.loading = true;
     this.error = null;
     
-    this.cartService.getCart().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.cartItems = response.data.items || [];
-          this.totalItems = response.data.totalItems || 0;
-          this.subtotal = response.data.subTotal || 0;
-        } else {
-          this.error = response.message || 'Failed to load cart';
-          this.cartItems = [];
-        }
+    this.cartSub?.unsubscribe();
+    this.cartSub = this.cartService.cartState$.subscribe({
+      next: (state: CartState) => {
+        this.cartItems = state.items;
+        this.totalItems = state.totalItems;
+        this.subtotal = state.subTotal;
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Failed to load cart. Please try again later.';
         this.loading = false;
-        this.cartItems = [];
         this.cdr.detectChanges();
       }
     });
@@ -60,15 +61,14 @@ export class CartComponent implements OnInit {
     this.updatingItems.add(itemId);
     this.cartService.removeCartItem(itemId).subscribe({
       next: (response) => {
-        if (response.success && response.data) {
-          this.cartItems = response.data.items || [];
-          this.totalItems = response.data.totalItems || 0;
-          this.subtotal = response.data.subTotal || 0;
+        if (!response.success) {
+          this.error = response.message || 'Failed to remove item';
         }
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       },
       error: () => {
+        this.error = 'Failed to remove item';
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       }
@@ -81,15 +81,14 @@ export class CartComponent implements OnInit {
     this.updatingItems.add(itemId);
     this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: (response) => {
-        if (response.success && response.data) {
-          this.cartItems = response.data.items || [];
-          this.totalItems = response.data.totalItems || 0;
-          this.subtotal = response.data.subTotal || 0;
+        if (!response.success) {
+          this.error = response.message || 'Failed to update quantity';
         }
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       },
       error: () => {
+        this.error = 'Failed to update quantity';
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       }

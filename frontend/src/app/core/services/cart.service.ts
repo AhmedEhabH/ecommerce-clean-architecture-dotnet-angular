@@ -4,6 +4,12 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CartResponse, AddToCartRequest } from '../../core/models/cart.model';
 
+export interface CartState {
+  items: any[];
+  totalItems: number;
+  subTotal: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,6 +20,13 @@ export class CartService {
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
+  private cartStateSubject = new BehaviorSubject<CartState>({
+    items: [],
+    totalItems: 0,
+    subTotal: 0
+  });
+  cartState$ = this.cartStateSubject.asObservable();
+
   constructor() {
     this.loadInitialCart();
   }
@@ -22,7 +35,7 @@ export class CartService {
     this.http.get<CartResponse>(`${this.baseUrl}/Cart`).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.cartCountSubject.next(response.data.totalItems || 0);
+          this.updateState(response.data);
         }
       },
       error: () => {
@@ -31,11 +44,19 @@ export class CartService {
     });
   }
 
+  private updateState(data: { totalItems?: number; subTotal?: number; items?: any[] }): void {
+    const totalItems = data.totalItems || 0;
+    const subTotal = data.subTotal || 0;
+    const items = data.items || [];
+    this.cartCountSubject.next(totalItems);
+    this.cartStateSubject.next({ items, totalItems, subTotal });
+  }
+
   getCart(): Observable<CartResponse> {
     return this.http.get<CartResponse>(`${this.baseUrl}/Cart`).pipe(
       tap((response) => {
         if (response.success && response.data) {
-          this.cartCountSubject.next(response.data.totalItems || 0);
+          this.updateState(response.data);
         }
       })
     );
@@ -45,17 +66,29 @@ export class CartService {
     return this.http.post<CartResponse>(`${this.baseUrl}/Cart/items`, request).pipe(
       tap((response) => {
         if (response.success && response.data) {
-          this.cartCountSubject.next(response.data.totalItems || 0);
+          this.updateState(response.data);
         }
       })
     );
   }
 
   updateCartItem(itemId: string, quantity: number): Observable<CartResponse> {
-    return this.http.put<CartResponse>(`${this.baseUrl}/Cart/items/${itemId}`, { quantity });
+    return this.http.put<CartResponse>(`${this.baseUrl}/Cart/items/${itemId}`, { quantity }).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.updateState(response.data);
+        }
+      })
+    );
   }
 
   removeCartItem(itemId: string): Observable<CartResponse> {
-    return this.http.delete<CartResponse>(`${this.baseUrl}/Cart/items/${itemId}`);
+    return this.http.delete<CartResponse>(`${this.baseUrl}/Cart/items/${itemId}`).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.updateState(response.data);
+        }
+      })
+    );
   }
 }
