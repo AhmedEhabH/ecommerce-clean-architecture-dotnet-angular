@@ -47,7 +47,8 @@ public class CartService : ICartService
             return Result<CartDto>.Success(MapToDto(cart));
         }
 
-        cart.AddItemWithPrice(product.Id, request.Quantity, product.Price);
+        var newItem = cart.AddItemWithPrice(product.Id, request.Quantity, product.Price);
+        _context.CartItems.Add(newItem);
         await _context.SaveChangesAsync(cancellationToken);
         return Result<CartDto>.Success(MapToDto(cart));
     }
