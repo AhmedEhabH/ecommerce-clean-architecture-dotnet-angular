@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductsService } from '../services/products.service';
 import { Product } from '../models/product.model';
 import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-details-page',
@@ -15,10 +16,12 @@ import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
 export class ProductDetailsPage implements OnInit {
   private productsService = inject(ProductsService);
   private route = inject(ActivatedRoute);
+  private cartService = inject(CartService);
 
   product = signal<Product | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  adding = signal(false);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -51,6 +54,17 @@ export class ProductDetailsPage implements OnInit {
   }
 
   onAddToCart(): void {
-    // Placeholder - cart functionality will be added in next step
+    const currentProduct = this.product();
+    if (!currentProduct) return;
+
+    this.adding.set(true);
+    this.cartService.addToCart({ productId: currentProduct.id, quantity: 1 }).subscribe({
+      next: () => {
+        this.adding.set(false);
+      },
+      error: () => {
+        this.adding.set(false);
+      }
+    });
   }
 }

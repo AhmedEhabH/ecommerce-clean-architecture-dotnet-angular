@@ -60,8 +60,12 @@
             }
           </div>
 
-          <button class="product-details__add-btn" (click)="onAddToCart()" [disabled]="!p.isInStock">
-            Add to Cart
+          <button class="product-details__add-btn" (click)="onAddToCart()" [disabled]="!p.isInStock || adding()">
+            @if (adding()) {
+              Adding...
+            } @else {
+              Add to Cart
+            }
           </button>
         </div>
       </div>

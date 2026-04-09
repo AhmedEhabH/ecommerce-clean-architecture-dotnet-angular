@@ -28,8 +28,12 @@
       }
     </div>
 
-    <button class="product-card__add-btn" (click)="onAddToCart($event)" [disabled]="!product.isInStock">
-      Add to Cart
+    <button class="product-card__add-btn" (click)="onAddToCart($event)" [disabled]="!product.isInStock || adding">
+      @if (adding) {
+        Adding...
+      } @else {
+        Add to Cart
+      }
     </button>
   </div>
 </a>

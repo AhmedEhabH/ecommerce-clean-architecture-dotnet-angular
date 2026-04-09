@@ -230,6 +230,7 @@ A standalone Angular SPA that consumes the ECommerce API. Built with Angular 21,
 - [x] **App Shell** — Header with navigation, footer, responsive layout
 - [x] **Authentication** — Login, Register, JWT interceptor, route guards
 - [x] **Products Catalog** — Paginated product listing, product details page, reusable card/grid components
+- [x] **Shopping Cart** — Add to cart from product card/details, cart page displays real items from API
 
 ### How to Run the Frontend
 
