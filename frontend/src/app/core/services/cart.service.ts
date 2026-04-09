@@ -77,6 +77,8 @@ export class CartService {
       tap((response) => {
         if (response.success && response.data) {
           this.updateState(response.data);
+        } else if (response.success) {
+          this.getCart().subscribe();
         }
       })
     );
@@ -87,6 +89,8 @@ export class CartService {
       tap((response) => {
         if (response.success && response.data) {
           this.updateState(response.data);
+        } else if (response.success) {
+          this.getCart().subscribe();
         }
       })
     );

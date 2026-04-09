@@ -63,6 +63,11 @@ export class CartComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (!response.success) {
           this.error = response.message || 'Failed to remove item';
+        } else {
+          this.error = null;
+          if (!response.data) {
+            this.cartService.getCart().subscribe();
+          }
         }
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
@@ -83,6 +88,8 @@ export class CartComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (!response.success) {
           this.error = response.message || 'Failed to update quantity';
+        } else if (response.data) {
+          this.error = null;
         }
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
