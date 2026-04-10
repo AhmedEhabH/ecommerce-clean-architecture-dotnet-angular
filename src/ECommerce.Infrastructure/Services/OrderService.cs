@@ -75,58 +75,63 @@ public class OrderService : IOrderService
             )
             : null;
 
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
 
-        try
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var order = Order.Create(
-                userId,
-                subtotal,
-                taxAmount,
-                shippingCost,
-                discountAmount,
-                shippingAddress,
-                billingAddress,
-                request.Notes
-            );
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-            foreach (var item in cartItems)
+            try
             {
-                if (item.Product != null)
+                var order = Order.Create(
+                    userId,
+                    subtotal,
+                    taxAmount,
+                    shippingCost,
+                    discountAmount,
+                    shippingAddress,
+                    billingAddress,
+                    request.Notes
+                );
+
+                foreach (var item in cartItems)
                 {
-                    order.AddItem(
-                        item.ProductId,
-                        item.Product.VendorId,
-                        item.Product.Name,
-                        item.Product.SKU,
-                        item.UnitPrice,
-                        item.Quantity
-                    );
+                    if (item.Product != null)
+                    {
+                        order.AddItem(
+                            item.ProductId,
+                            item.Product.VendorId,
+                            item.Product.Name,
+                            item.Product.SKU,
+                            item.UnitPrice,
+                            item.Quantity
+                        );
 
-                    item.Product.UpdateStock(-item.Quantity);
+                        item.Product.UpdateStock(-item.Quantity);
+                    }
                 }
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                cartEntity.Clear();
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                return Result<OrderDto>.Success(MapToOrderDto(order));
             }
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            cartEntity.Clear();
-            await _context.SaveChangesAsync(cancellationToken);
-
-            await transaction.CommitAsync(cancellationToken);
-
-            return Result<OrderDto>.Success(MapToOrderDto(order));
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient stock"))
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            return Result<OrderDto>.Failure(ex.Message);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient stock"))
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return Result<OrderDto>.Failure(ex.Message);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        });
     }
 
     public async Task<Result<OrderDto>> GetOrderByIdAsync(Guid orderId, Guid userId, CancellationToken cancellationToken = default)
