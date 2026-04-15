@@ -5,6 +5,7 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { CartComponent } from './features/cart/cart.component';
 import { CheckoutComponent } from './features/checkout/checkout.component';
 import { OrderSuccessComponent } from './features/order-success/order-success.component';
+import { OrdersComponent } from './features/orders/orders.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { ProductListPage } from './features/products/pages/product-list.page';
 import { ProductDetailsPage } from './features/products/pages/product-details.page';
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent, title: 'Cart' },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard], title: 'Checkout' },
   { path: 'order-success', component: OrderSuccessComponent, title: 'Order Success' },
+  { path: 'orders', component: OrdersComponent, canActivate: [authGuard], title: 'My Orders' },
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];

@@ -150,7 +150,13 @@ Checkout flow from cart to order placement is now implemented.
 - **Order Success Page** (`/order-success`)
   - Displays order confirmation
   - Shows order number, status, total, and item count
-  - Links to continue shopping
+  - Links to continue shopping and view orders
+
+- **Order History Page** (`/orders`)
+  - Displays list of user's past orders
+  - Shows order number, date, status, items count, and total
+  - Authenticated users only (via authGuard)
+  - Empty state when no orders exist
 
 ### Backend Contract
 
@@ -182,17 +188,18 @@ Checkout flow from cart to order placement is now implemented.
 | `src/app/features/checkout/checkout.component.ts` | Updated - Full implementation |
 | `src/app/features/checkout/checkout.component.html` | Updated - Complete form UI |
 | `src/app/features/checkout/checkout.component.scss` | Updated - Styles for textarea |
-| `src/app/features/order-success/order-success.component.ts` | Added - Success page |
-| `src/app/features/cart/cart.component.html` | Updated - Checkout link |
-| `src/app/features/cart/cart.component.scss` | Updated - Anchor button styles |
-| `src/app/app.routes.ts` | Updated - Order success route |
+| `src/app/features/order-success/order-success.component.ts` | Updated - Added View Orders button |
+| `src/app/features/orders/orders.component.ts` | Added - Order history page |
+| `src/app/layout/header/header.component.html` | Updated - My Orders nav link |
+| `src/app/app.routes.ts` | Updated - Order success and orders routes |
 | `README.md` | Updated - Documentation |
 
 ### Deferred/Not Implemented
 
 - Payment gateway UI (no backend payment integration ready)
 - Coupon/discount system
-- Order history/account pages
+- Order details page
 - Email confirmation display
 - Order tracking
 - Billing address form (separate from shipping)
+- Pagination on orders page (if order count is high)

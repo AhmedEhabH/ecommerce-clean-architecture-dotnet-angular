@@ -44,7 +44,8 @@ import { OrderDto } from '../../core/models/order.model';
 
             <div class="success-actions">
               <a routerLink="/products" class="btn">Continue Shopping</a>
-              <button class="btn btn--secondary" (click)="clearAndGoHome()">Back to Home</button>
+              <a routerLink="/orders" class="btn btn--secondary">View Orders</a>
+              <button class="btn btn--ghost" (click)="clearAndGoHome()">Back to Home</button>
             </div>
           </div>
         } @else {
@@ -142,6 +143,17 @@ import { OrderDto } from '../../core/models/order.model';
         background: var(--color-surface-elevated);
         color: var(--color-text);
         border: 1px solid var(--color-border);
+      }
+
+      .btn--ghost {
+        background: transparent;
+        color: var(--color-text-secondary);
+        border: none;
+        padding: 0.5rem 1rem;
+      }
+
+      .btn--ghost:hover {
+        color: var(--color-text);
       }
     }
 
