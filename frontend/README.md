@@ -190,6 +190,35 @@ All filtering and sorting is handled server-side via query parameters:
 - `SortBy` - Field to sort by
 - `SortDescending` - Sort direction
 
+## Feedback & Loading UX
+
+The application includes a lightweight toast notification system for user feedback.
+
+### Toast Notifications
+Success and error toasts appear for key user actions:
+- **Add to Cart**: Shows product name in success toast
+- **Cart Updates**: Success/error feedback for quantity changes
+- **Cart Remove**: Confirmation when item is removed
+
+Toast behavior:
+- Auto-dismiss after 3 seconds
+- Click to dismiss early
+- Stacks if multiple toasts appear
+- Positioned bottom-right (bottom-left on mobile)
+
+### Loading States
+Loading feedback is provided for:
+- Add to Cart buttons (product cards and details page)
+- Cart item quantity updates
+- Cart item removal
+- Checkout submission
+
+Loading states:
+- Show spinner immediately when action starts
+- Stop on success or error
+- Never get stuck in loading state
+- Disabled state prevents double-clicks
+
 ## Checkout Foundation
 
 Checkout flow from cart to order placement is now implemented.

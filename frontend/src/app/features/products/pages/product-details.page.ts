@@ -5,6 +5,7 @@ import { ProductsService } from '../services/products.service';
 import { Product } from '../models/product.model';
 import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
 import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-product-details-page',
@@ -17,11 +18,13 @@ export class ProductDetailsPage implements OnInit {
   private productsService = inject(ProductsService);
   private route = inject(ActivatedRoute);
   private cartService = inject(CartService);
+  private toastService = inject(ToastService);
 
   product = signal<Product | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
   adding = signal(false);
+  quantity = signal(1);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -36,6 +39,7 @@ export class ProductDetailsPage implements OnInit {
   loadProduct(id: string): void {
     this.loading.set(true);
     this.error.set(null);
+    this.quantity.set(1);
 
     this.productsService.getProductById(id).subscribe({
       next: (response) => {
@@ -53,16 +57,32 @@ export class ProductDetailsPage implements OnInit {
     });
   }
 
+  incrementQuantity(): void {
+    const current = this.quantity();
+    const max = this.product()?.stockQuantity || 1;
+    if (current < max) {
+      this.quantity.set(current + 1);
+    }
+  }
+
+  decrementQuantity(): void {
+    const current = this.quantity();
+    if (current > 1) {
+      this.quantity.set(current - 1);
+    }
+  }
+
   onAddToCart(): void {
     const currentProduct = this.product();
     if (!currentProduct || this.adding()) return;
 
     this.adding.set(true);
-    this.cartService.addToCart({ productId: currentProduct.id, quantity: 1 }).subscribe({
+    this.cartService.addToCart({ productId: currentProduct.id, quantity: this.quantity() }).subscribe({
       next: () => {
-        this.adding.set(false);
+        this.toastService.success(`${currentProduct.name} added to cart`);
       },
       error: () => {
+        this.toastService.error('Failed to add item to cart');
         this.adding.set(false);
       },
       complete: () => {

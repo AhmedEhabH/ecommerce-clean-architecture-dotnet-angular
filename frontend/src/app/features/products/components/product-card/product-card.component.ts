@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Product } from '../../models/product.model';
 import { ProductImagePipe } from '../../../../shared/pipes/product-image.pipe';
 import { CartService } from '../../../../core/services/cart.service';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-product-card',
@@ -16,6 +17,7 @@ export class ProductCardComponent {
   @Input({ required: true }) product!: Product;
 
   private cartService = inject(CartService);
+  private toastService = inject(ToastService);
   adding = false;
 
   onAddToCart(event: Event): void {
@@ -27,10 +29,10 @@ export class ProductCardComponent {
     this.adding = true;
     this.cartService.addToCart({ productId: this.product.id, quantity: 1 }).subscribe({
       next: () => {
-        this.adding = false;
+        this.toastService.success(`${this.product.name} added to cart`);
       },
       error: () => {
-        this.adding = false;
+        this.toastService.error('Failed to add item to cart');
       },
       complete: () => {
         this.adding = false;

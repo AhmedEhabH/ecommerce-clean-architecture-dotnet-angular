@@ -5,6 +5,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ProductImagePipe } from '../../shared/pipes/product-image.pipe';
 import { CartService, CartState } from '../../core/services/cart.service';
 import { CartItem } from '../../core/models/cart.model';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,6 +17,7 @@ import { Subscription } from 'rxjs';
 })
 export class CartComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
+  private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
   private cartSub?: Subscription;
   
@@ -58,13 +60,16 @@ export class CartComponent implements OnInit, OnDestroy {
   removeItem(itemId: string): void {
     if (this.updatingItems.has(itemId)) return;
     
+    const item = this.cartItems.find(i => i.id === itemId);
+    const itemName = item?.productName || 'Item';
+    
     this.updatingItems.add(itemId);
     this.cartService.removeCartItem(itemId).subscribe({
       next: (response) => {
         if (!response.success) {
-          this.error = response.message || 'Failed to remove item';
+          this.toastService.error(response.message || 'Failed to remove item');
         } else {
-          this.error = null;
+          this.toastService.success(`${itemName} removed from cart`);
           if (!response.data) {
             this.cartService.getCart().subscribe();
           }
@@ -73,7 +78,7 @@ export class CartComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Failed to remove item';
+        this.toastService.error('Failed to remove item');
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       }
@@ -87,15 +92,15 @@ export class CartComponent implements OnInit, OnDestroy {
     this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: (response) => {
         if (!response.success) {
-          this.error = response.message || 'Failed to update quantity';
-        } else if (response.data) {
-          this.error = null;
+          this.toastService.error(response.message || 'Failed to update quantity');
+        } else {
+          this.toastService.success('Cart updated');
         }
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Failed to update quantity';
+        this.toastService.error('Failed to update quantity');
         this.updatingItems.delete(itemId);
         this.cdr.detectChanges();
       }
