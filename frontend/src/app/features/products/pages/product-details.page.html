@@ -214,7 +214,7 @@
           }
         } @else {
           <p class="reviews-section__login-prompt">
-            <a routerLink="/auth/login">Sign in</a> to leave a review
+            <a [routerLink]="['/login']" [queryParams]="{returnUrl: '/products/' + product()?.id}">Sign in</a> to leave a review
           </p>
         }
 
