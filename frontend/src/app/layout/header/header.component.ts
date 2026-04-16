@@ -1,4 +1,4 @@
-import { Component, inject, HostListener, ElementRef } from '@angular/core';
+import { Component, inject, HostListener, ElementRef, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs';
@@ -30,13 +30,23 @@ export class HeaderComponent {
 
   isAccountMenuOpen = false;
   isThemeMenuOpen = false;
+  isMobileMenuOpen = signal(false);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.isAccountMenuOpen = false;
       this.isThemeMenuOpen = false;
+      this.isMobileMenuOpen.set(false);
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
   }
 
   toggleAccountMenu(): void {
