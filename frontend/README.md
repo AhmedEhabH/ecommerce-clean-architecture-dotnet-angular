@@ -123,6 +123,34 @@ For more information on using the Angular CLI, including detailed command refere
 
 Cart UI shell is now present with Add to Cart buttons on product cards and details page, cart link in header, and cart page layout. Cart functionality will be added in subsequent steps.
 
+## Navigation
+
+### Header Account Dropdown
+
+Authenticated users have access to an account dropdown menu in the header that provides:
+- User avatar with initials
+- User's name and email
+- Quick access to My Orders
+- Logout option
+
+The dropdown:
+- Opens on click with smooth animation
+- Closes when clicking outside
+- Is keyboard accessible
+- Adapts to mobile screens (opens left-aligned)
+- Maintains consistent styling with light/dark themes
+
+### Navigation Links
+
+| Link | Auth Required | Location |
+|------|---------------|----------|
+| Home | No | Top nav |
+| Products | No | Top nav |
+| Cart | No | Top nav (with badge count) |
+| My Orders | Yes | Account dropdown |
+| Login/Register | No | Auth section (unauthenticated) |
+| Account menu | Yes | Auth section (authenticated) |
+
 ## Checkout Foundation
 
 Checkout flow from cart to order placement is now implemented.

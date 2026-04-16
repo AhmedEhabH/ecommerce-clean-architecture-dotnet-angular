@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, HostListener, ElementRef } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
@@ -17,14 +17,35 @@ export class HeaderComponent {
   private authService = inject(AuthService);
   protected themeService = inject(ThemeService);
   protected cartService = inject(CartService);
+  private elementRef = inject(ElementRef);
+  private router = inject(Router);
 
   isAuthenticated$ = this.authService.authUser$.pipe(
     map(user => !!user)
   );
   authUser$ = this.authService.authUser$;
 
+  isAccountMenuOpen = false;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isAccountMenuOpen = false;
+    }
+  }
+
+  toggleAccountMenu(): void {
+    this.isAccountMenuOpen = !this.isAccountMenuOpen;
+  }
+
+  closeAccountMenu(): void {
+    this.isAccountMenuOpen = false;
+  }
+
   logout(): void {
+    this.closeAccountMenu();
     this.authService.logout();
+    this.router.navigate(['/']);
   }
 
   toggleTheme(): void {
