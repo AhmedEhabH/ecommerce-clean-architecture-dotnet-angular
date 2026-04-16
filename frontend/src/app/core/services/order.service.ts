@@ -43,4 +43,15 @@ export class OrderService {
       map(response => response.data || [])
     );
   }
+
+  getOrderById(id: string): Observable<OrderDto> {
+    return this.http.get<ApiResponse<OrderDto>>(`${this.baseUrl}/orders/${id}`).pipe(
+      map(response => {
+        if (!response.data) {
+          throw new Error(response.message || 'Order not found');
+        }
+        return response.data;
+      })
+    );
+  }
 }

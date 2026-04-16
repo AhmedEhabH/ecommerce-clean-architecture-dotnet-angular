@@ -42,7 +42,7 @@ import { OrderDto } from '../../core/models/order.model';
         } @else {
           <div class="orders-list">
             @for (order of orders; track order.id) {
-              <div class="order-card">
+              <a [routerLink]="['/orders', order.id]" class="order-card">
                 <div class="order-card__header">
                   <div class="order-card__info">
                     <span class="order-card__number">Order #{{ order.orderNumber }}</span>
@@ -70,7 +70,7 @@ import { OrderDto } from '../../core/models/order.model';
                     }
                   </div>
                 </div>
-              </div>
+              </a>
             }
           </div>
         }
@@ -136,6 +136,9 @@ import { OrderDto } from '../../core/models/order.model';
       border-radius: var(--radius-lg);
       overflow: hidden;
       transition: box-shadow 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
 
       &:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
